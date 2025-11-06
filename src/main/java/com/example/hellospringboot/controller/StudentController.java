@@ -3,6 +3,9 @@ package com.example.hellospringboot.controller;
 import com.example.hellospringboot.model.Student;
 import com.example.hellospringboot.service.StudentService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -17,8 +20,22 @@ public class StudentController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Student>> getStudents() {
-        return ResponseEntity.ok(studentService.getAllStudents());
+    public ResponseEntity<Page<Student>> getStudents(
+            @RequestParam(value = "q",required = false) String q,
+            @PageableDefault(page = 0, size = 10, sort = "id") Pageable pageable
+            ) {
+        Page<Student> page = (q == null || q.isBlank())
+                ? studentService.findAll(pageable)
+                : studentService.searchByNameOrEmail(q, pageable);
+        return ResponseEntity.ok(page);
+    }
+
+    @GetMapping("/search/by-name")
+    public ResponseEntity<Page<Student>> searchByName(
+            @RequestParam String name,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(studentService.findByName(name, pageable));
     }
 
     @GetMapping("/{id}")

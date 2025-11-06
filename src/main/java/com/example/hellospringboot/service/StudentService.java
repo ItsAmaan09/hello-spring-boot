@@ -3,6 +3,8 @@ package com.example.hellospringboot.service;
 import com.example.hellospringboot.exception.StudentNotFoundException;
 import com.example.hellospringboot.model.Student;
 import com.example.hellospringboot.repository.StudentRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -42,5 +44,21 @@ public class StudentService {
         Student student = studentRepository.findById(id).orElseThrow(()-> new StudentNotFoundException(id));
         studentRepository.deleteById(id);
         return student;
+    }
+
+    public Page<Student> findAll(Pageable pageable) {
+        return studentRepository.findAll(pageable);
+    }
+
+    public Page<Student> findByName(String name, Pageable pageable) {
+        return studentRepository.findByNameContainingIgnoreCase(name,pageable);
+    }
+
+    public Page<Student> findByEmail(String email, Pageable pageable) {
+        return studentRepository.findByEmail(email,pageable);
+    }
+
+    public Page<Student> searchByNameOrEmail(String query, Pageable pageable) {
+        return studentRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(query,query,pageable);
     }
 }
